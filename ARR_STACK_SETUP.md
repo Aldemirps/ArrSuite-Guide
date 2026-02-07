@@ -1289,7 +1289,182 @@ A: Most auto-update. Or manually: Service Settings → Updates → Install.
 
 ---
 
-## 🌟 What's Next?
+## � GPU Hardware Acceleration (Jellyfin Transcoding)
+
+**Why use GPU?** Hardware transcoding is 10-20x faster than CPU for 4K content and uses less power.
+
+### Step 1: Install Nvidia Drivers on Proxmox HOST
+
+```bash
+# Check if you have an Nvidia GPU
+lspci | grep -i nvidia
+
+# Should show something like:
+# 01:00.0 VGA compatible controller: NVIDIA Corporation ...
+
+# Add non-free repositories
+nano /etc/apt/sources.list
+
+# Add "contrib non-free non-free-firmware" to each line, example:
+# deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+
+# Update and install drivers
+apt update
+apt install nvidia-driver firmware-misc-nonfree -y
+
+# Install CUDA toolkit (optional, for advanced features)
+apt install nvidia-cuda-toolkit -y
+
+# Reboot the Proxmox host
+reboot
+
+# After reboot, verify driver is loaded
+nvidia-smi
+```
+
+You should see output showing your GPU, driver version, and CUDA version.
+
+### Step 2: Pass GPU to Jellyfin Container
+
+```bash
+# Find GPU device numbers
+ls -l /dev/dri/
+# Output shows: renderD128, card0, etc.
+
+# Stop Jellyfin container (replace 105 with your Jellyfin CTID)
+pct stop 105
+
+# Edit container config
+nano /etc/pve/lxc/105.conf
+
+# Add these lines at the end:
+lxc.cgroup2.devices.allow: c 226:* rwm
+lxc.mount.entry: /dev/dri dev/dri none bind,optional,create=dir
+lxc.mount.entry: /dev/dri/renderD128 dev/dri/renderD128 none bind,optional,create=file
+lxc.mount.entry: /dev/dri/card0 dev/dri/card0 none bind,optional,create=file
+
+# Save and exit (CTRL+O, Enter, CTRL+X)
+
+# Start container
+pct start 105
+```
+
+### Step 3: Configure Jellyfin to Use GPU
+
+```bash
+# Enter Jellyfin container
+pct enter 105
+
+# Verify GPU is accessible
+ls -l /dev/dri/
+# Should show renderD128, card0
+
+# Check if Jellyfin user has access
+groups jellyfin
+# Should include 'render' or 'video' group
+
+# If not, add Jellyfin to groups
+usermod -aG render jellyfin
+usermod -aG video jellyfin
+
+# Restart Jellyfin service
+systemctl restart jellyfin
+
+# Exit container
+exit
+```
+
+### Step 4: Enable in Jellyfin Web UI
+
+1. **Access Jellyfin:** `http://jellyfin-ip:8096`
+2. **Go to Dashboard** (top right menu)
+3. **Playback** → **Transcoding** section
+4. **Hardware acceleration:** Select `NVIDIA NVENC`
+5. **Enable hardware encoding** for all codecs:
+   - ✅ H264
+   - ✅ HEVC (H265)
+   - ✅ MPEG2
+   - ✅ VC1
+   - ✅ VP8
+   - ✅ VP9
+6. **Enable tone mapping** for HDR ✅
+7. **Save**
+
+### Step 5: Test Transcoding
+
+1. Play a 4K/HEVC video that requires transcoding
+2. Check GPU usage on Proxmox host:
+   ```bash
+   watch -n 1 nvidia-smi
+   ```
+   You should see GPU utilization increase during playback
+
+### Troubleshooting GPU Issues
+
+**"No GPU detected in Jellyfin"**
+```bash
+# Check driver on host
+nvidia-smi
+
+# Check inside container
+pct enter 105
+ls -l /dev/dri/
+nvidia-smi  # Should work if drivers are passed correctly
+
+# Check permissions
+ls -l /dev/dri/renderD128
+# Should be accessible by render/video group
+```
+
+**"Permission denied" errors**
+```bash
+pct enter 105
+usermod -aG render jellyfin
+usermod -aG video jellyfin
+systemctl restart jellyfin
+```
+
+**Driver not loading**
+```bash
+# On Proxmox host
+dmesg | grep nvidia
+# Check for errors
+
+# Reinstall if needed
+apt reinstall nvidia-driver
+reboot
+```
+
+### Intel QuickSync (Alternative to Nvidia)
+
+If you have Intel integrated graphics:
+
+```bash
+# On Proxmox host
+apt install intel-media-va-driver-non-free -y
+
+# Pass to container (in /etc/pve/lxc/105.conf)
+lxc.cgroup2.devices.allow: c 226:* rwm
+lxc.mount.entry: /dev/dri dev/dri none bind,optional,create=dir
+
+# In Jellyfin UI, select: Intel QuickSync
+```
+
+### AMD GPU
+
+For AMD GPUs:
+
+```bash
+# On Proxmox host
+apt install firmware-amd-graphics -y
+
+# Same bind mount as Nvidia
+# In Jellyfin UI, select: Video Acceleration API (VAAPI)
+```
+
+---
+
+## �🌟 What's Next?
 
 Once your basic stack is running, consider:
 
