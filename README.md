@@ -6,7 +6,7 @@ This directory contains helper scripts and configuration examples for setting up
 
 ### 1️⃣ What Scripts Do You Use?
 
-**[Community-Scripts (formerly tteck's scripts)](https://github.com/community-scripts/ProxmoxVE)** - These create optimized LXC containers automatically.
+**[Community-Scripts (formerly tteck's scripts)]([https://github.com/community-scripts/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/))** - These create optimized LXC containers automatically.
 
 Example installation:
 ```bash
