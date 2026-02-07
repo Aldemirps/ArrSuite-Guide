@@ -1,0 +1,27 @@
+# Ignore everything by default
+*
+
+# But include our documentation files
+!.gitignore
+!README.md
+!ARR_STACK_SETUP.md
+!ct-add-storage.sh
+!nfs-setup.sh
+!example-configs/
+!example-configs/**
+!LICENSE
+
+# Ignore system files
+.bash_history
+.bashrc
+.profile
+.cache/
+.dotnet/
+.forward
+.install-*.log
+.local/
+.rnd
+.ssh/
+.vscode-server/
+.wget-hsts
+immich-upload-guide.md
