@@ -83,8 +83,7 @@ pct stop 105 && pct start 105
 ## �📁 Files in This Repository
 
 ### Main Documentation
-- **[ARR_STACK_SETUP.md](ARR_STACK_SETUP.md)** - Complete setup guide with step-by-step instructions
-
+- **[ARR_STACK_SETUP.md](ARR_STACK_SETUP.md)** - Complete setup guide with step-by-step instructions- **[ARCHITECTURE.md](ARCHITECTURE.md)** - 🆕 Deep dive into design decisions, philosophy, and "why LXC over Docker"
 ### Helper Scripts
 - **[ct-add-storage.sh](ct-add-storage.sh)** - Automatically share storage with containers
 - **[nfs-setup.sh](nfs-setup.sh)** - Interactive NFS storage setup script
@@ -117,11 +116,15 @@ pct stop 105 && pct start 105
 
 ## 📚 What You'll Learn
 
+- **[Why LXC over Docker?](ARCHITECTURE.md#phase-1-project-overview--philosophy)** - Design philosophy and architecture decisions
+- **[Storage setup explained](ARCHITECTURE.md#phase-3-the-hard-part---storage--permissions)** - The complete flow from NAS to containers
 - How to set up NFS storage for Proxmox
 - How to install and configure Prowlarr, Sonarr, Radarr, qBittorrent, Jellyfin, and Jellyseerr
 - How to connect all services together
 - How to troubleshoot common issues
+- GPU hardware acceleration for transcoding
 - Best practices for media automation
+- Backup and rollback strategies
 
 ## 🎯 End Result
 

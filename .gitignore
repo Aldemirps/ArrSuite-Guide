@@ -5,6 +5,7 @@
 !.gitignore
 !README.md
 !ARR_STACK_SETUP.md
+!ARCHITECTURE.md
 !ct-add-storage.sh
 !nfs-setup.sh
 !example-configs/
