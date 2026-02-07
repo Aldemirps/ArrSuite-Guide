@@ -5,8 +5,13 @@
 !.gitignore
 !README.md
 !ARR_STACK_SETUP.md
+!ARCHITECTURE.md
 !ct-add-storage.sh
 !nfs-setup.sh
+!vpn-setup.sh
+!VPN_SPLIT_TUNNEL_SETUP.md
+!VPN_GETTING_STARTED.md
+!surfshark-template.conf
 !example-configs/
 !example-configs/**
 !LICENSE
@@ -25,3 +30,11 @@
 .vscode-server/
 .wget-hsts
 immich-upload-guide.md
+
+# Ignore sensitive VPN configs (contain private keys!)
+*.conf
+ae-dub.conf
+wg*.conf
+
+# But allow the template (no sensitive data)
+!surfshark-template.conf
