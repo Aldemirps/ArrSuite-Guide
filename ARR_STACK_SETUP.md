@@ -117,6 +117,218 @@ Make executable:
 chmod +x /usr/local/bin/ct-add-storage
 ```
 
+## GPU Passthrough (LXC)
+
+Nvidia GPU passthrough for hardware transcoding in LXC containers (Jellyfin, Plex, Tdarr). Verified on PVE 8.x with Nvidia 20-series cards (RTX 2070 Ti tested on i7-10700T).
+
+### Prerequisites
+
+Host must have Nvidia drivers installed. LXC containers cannot use kernel modules directly - they share the host's driver.
+
+Install on Proxmox host:
+
+```bash
+# Install kernel headers
+apt update
+apt install -y pve-headers-$(uname -r)
+
+# Add contrib/non-free repos for Nvidia driver
+echo "deb http://deb.debian.org/debian bookworm contrib non-free non-free-firmware" >> /etc/apt/sources.list
+apt update
+
+# Install Nvidia driver
+apt install -y nvidia-driver firmware-misc-nonfree
+
+# Blacklist nouveau (conflicts with Nvidia)
+echo "blacklist nouveau" > /etc/modprobe.d/blacklist-nouveau.conf
+echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf
+update-initramfs -u
+
+# Reboot required
+reboot
+```
+
+Verify driver loaded:
+
+```bash
+nvidia-smi
+# Should show GPU info and driver version
+```
+
+### Identify Device Files
+
+List Nvidia device nodes:
+
+```bash
+ls -la /dev/nvidia*
+ls -la /dev/dri/
+```
+
+Expected output:
+
+```
+/dev/nvidia0          # Primary GPU
+/dev/nvidiactl        # Control device
+/dev/nvidia-modeset   # Mode setting
+/dev/nvidia-uvm       # Unified memory
+/dev/nvidia-uvm-tools # UVM tools
+
+/dev/dri/card0        # Intel iGPU (if present)
+/dev/dri/card1        # Nvidia GPU
+/dev/dri/renderD128   # Intel render node
+/dev/dri/renderD129   # Nvidia render node
+```
+
+Note major:minor numbers:
+
+```bash
+ls -l /dev/nvidia* /dev/dri/card* /dev/dri/renderD*
+```
+
+Typical values:
+- nvidia devices: 195:x, 509:x
+- dri devices: 226:x
+
+### Configure LXC Container
+
+Container must be privileged for direct device access. Edit container config:
+
+```bash
+nano /etc/pve/lxc/<VMID>.conf
+```
+
+Add these lines (adjust device numbers if different):
+
+```
+# Nvidia GPU passthrough
+lxc.cgroup2.devices.allow: c 195:* rwm
+lxc.cgroup2.devices.allow: c 509:* rwm
+lxc.cgroup2.devices.allow: c 226:1 rwm
+lxc.cgroup2.devices.allow: c 226:129 rwm
+
+# Mount device nodes
+lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
+lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
+lxc.mount.entry: /dev/nvidia-modeset dev/nvidia-modeset none bind,optional,create=file
+lxc.mount.entry: /dev/nvidia-uvm dev/nvidia-uvm none bind,optional,create=file
+lxc.mount.entry: /dev/nvidia-uvm-tools dev/nvidia-uvm-tools none bind,optional,create=file
+lxc.mount.entry: /dev/dri/card1 dev/dri/card1 none bind,optional,create=file
+lxc.mount.entry: /dev/dri/renderD129 dev/dri/renderD129 none bind,optional,create=file
+```
+
+**Configuration notes:**
+- `195:*` = All /dev/nvidia* character devices
+- `509:*` = /dev/nvidia-uvm* devices
+- `226:1` = /dev/dri/card1 (Nvidia GPU, adjust if different)
+- `226:129` = /dev/dri/renderD129 (Nvidia render node)
+- `optional` = Container starts even if device missing
+- `create=file` = Auto-create device node in container
+
+For unprivileged containers (not recommended for GPU):
+
+```
+lxc.idmap: u 0 100000 65536
+lxc.idmap: g 0 100000 44
+lxc.idmap: g 44 44 1
+lxc.idmap: g 45 100045 65491
+```
+
+This maps video group (GID 44) to host.
+
+### Install Driver in Container
+
+⚠️ **CRITICAL**: Driver version in container must exactly match host driver version.
+
+Start container and enter:
+
+```bash
+pct start <VMID>
+pct enter <VMID>
+```
+
+Inside container:
+
+```bash
+# Check host driver version first (from host shell: nvidia-smi)
+# Example: 525.147.05
+
+apt update
+apt install -y nvidia-driver
+
+# Or install specific version
+apt install -y nvidia-driver=525.147.05-1
+
+# Verify GPU access
+nvidia-smi
+```
+
+Expected output should show GPU model and driver version matching host.
+
+### Troubleshooting
+
+**nvidia-smi fails with "No devices found"**:
+- Check host driver loaded: `nvidia-smi` on host
+- Verify LXC config syntax: `cat /etc/pve/lxc/<VMID>.conf`
+- Check device nodes exist on host: `ls -l /dev/nvidia*`
+- Container must be privileged: `grep unprivileged /etc/pve/lxc/<VMID>.conf` should be empty or `0`
+- Restart container: `pct reboot <VMID>`
+
+**Driver version mismatch error**:
+```
+Failed to initialize NVML: Driver/library version mismatch
+```
+
+Fix: Match versions exactly.
+
+```bash
+# On host
+nvidia-smi | grep "Driver Version"
+
+# In container, install matching version
+apt install -y nvidia-driver=<exact-version>
+```
+
+**Container fails to start after GPU config**:
+- Check journal: `journalctl -u pve-container@<VMID> -n 50`
+- Common cause: Typo in lxc.conf or device nodes don't exist
+- Test without GPU config, add devices incrementally
+
+**Permission denied errors**:
+- Verify cgroup2 device allows are present
+- For unprivileged: Check idmap configuration includes video group
+- Verify device permissions on host: `ls -l /dev/nvidia*`
+
+### Jellyfin Hardware Transcoding
+
+After GPU configured in Jellyfin container:
+
+Dashboard → Playback → Hardware Acceleration:
+- Type: Nvidia NVENC
+- Enable hardware decoding for: H264, HEVC, VP9, MPEG2, VC1
+- Transcoding threads: Auto
+
+Test by playing 4K HEVC video. Dashboard → Activity should show "(hw)" next to codec. Monitor GPU usage: `nvidia-smi dmon`
+
+Verify FFmpeg NVENC support:
+
+```bash
+/usr/lib/jellyfin-ffmpeg/ffmpeg -encoders 2>/dev/null | grep nvenc
+# Should list h264_nvenc, hevc_nvenc, av1_nvenc
+```
+
+If missing, install Jellyfin's custom FFmpeg:
+
+```bash
+apt install -y jellyfin-ffmpeg5
+```
+
+### Performance Notes
+
+- Hardware transcoding reduces CPU usage by 80-90%
+- RTX 2070 Ti: Handles 4-6 simultaneous 4K→1080p transcodes
+- Monitor temps: `nvidia-smi dmon -s pucvt`
+- Power limit (optional): `nvidia-smi -pl 150` (150W limit for 2070 Ti)
+
 ## Installation
 
 Deploy using Proxmox Community Scripts. Each command spawns interactive installer. Note assigned VMID.
