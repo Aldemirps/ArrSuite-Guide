@@ -29,6 +29,9 @@
 .ssh/
 .vscode-server/
 .wget-hsts
+
+# Ignore project planning files
+PLAN.md
 immich-upload-guide.md
 
 # Ignore sensitive VPN configs (contain private keys!)
